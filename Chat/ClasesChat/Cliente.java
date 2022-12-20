@@ -87,6 +87,7 @@ public class Cliente {
 		System.out.println("Introduce tu nombre: ");
 		
 			String nombre = scanner.nextLine();
+			System.out.println("Te has conectado al chat!");
 			Socket socket = new Socket("localhost",3000);
 			Cliente cliente = new Cliente(socket, nombre);
 			cliente.recibirMensaje();
