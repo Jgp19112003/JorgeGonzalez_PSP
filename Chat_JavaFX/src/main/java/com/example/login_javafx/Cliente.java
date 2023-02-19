@@ -6,45 +6,86 @@ import javafx.scene.Scene;
 import javafx.stage.Stage;
 
 import java.io.*;
+import java.net.Socket;
+import java.util.Scanner;
 import javax.net.ssl.*;
 
-public class Cliente extends Application {
-    public static void main(String[] args) throws Exception {
-        String Host = "localhost";
-        int puerto = 5556;//puerto remoto
+public class Cliente {
 
-        System.setProperty("javax.net.ssl.trustStore","C:\\Users\\jgp19\\Desktop\\GitHub\\JorgeGonzalez_PSP\\Login_JavaFX\\src\\main\\java\\com\\example\\login_javafx\\AlmacenSrv");
-        System.setProperty("javax.net.ssl.trustStorePassword","1234567");
+    SSLSocket socket;
+    BufferedReader bufferedReader;
+    BufferedWriter bufferedWriter;
+    String nombre;
 
-        System.out.println("PROGRAMA CLIENTE INICIADO....");
+    public Cliente(SSLSocket socket, String nombre) {
+        try {
+            this.socket = socket;
+            this.bufferedWriter = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
+            this.bufferedReader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+            this.nombre = nombre;
+        } catch (Exception e) {
+            cerrarTodo(socket, bufferedReader, bufferedWriter);
+        }
+    }
 
-        SSLSocketFactory sfact = (SSLSocketFactory) SSLSocketFactory.getDefault();
-        SSLSocket Cliente  = (SSLSocket) sfact.createSocket(Host, puerto);
+    public void enviarMensaje() {
+        try {
+            bufferedWriter.write(nombre);
+            bufferedWriter.newLine();
+            bufferedWriter.flush();
 
-        // CREO FLUJO DE SALIDA AL SERVIDOR
-        DataOutputStream flujoSalida = new DataOutputStream(Cliente.getOutputStream());
+            Scanner scanner = new Scanner(System.in);
+            while (socket.isConnected()) {
+                String mensaje = scanner.nextLine();
+                System.out.printf("Tu: " + mensaje);
+                System.out.println();
+                bufferedWriter.write(nombre + ": " + mensaje);
+                bufferedWriter.newLine();
+                bufferedWriter.flush();
+            }
+        } catch (Exception e) {
+            cerrarTodo(socket, bufferedReader, bufferedWriter);
+        }
+    }
 
-        // CREO FLUJO DE ENTRADA AL SERVIDOR
-        DataInputStream flujoEntrada = new DataInputStream(Cliente.getInputStream());
+    public void recibirMensaje() {
+        new Thread(new Runnable() {
 
-        // EL servidor ME ENVIA UN MENSAJE
-        if (flujoEntrada.readUTF().equalsIgnoreCase("IniciarChat")){
-            launch();
-        } else {
-            System.out.println("El servidor a rechazado la orden de iniciar el chat");
+            @Override
+            public void run() {
+                String mensaje;
+                while (socket.isConnected()) {
+                    try {
+                        mensaje = bufferedReader.readLine();
+                        System.out.println(mensaje);
+                    } catch (Exception e) {
+                        cerrarTodo(socket, bufferedReader, bufferedWriter);
+                    }
+                }
+            }
+        }).start();
+    }
+
+    public void cerrarTodo(SSLSocket socket, BufferedReader bufferedReader, BufferedWriter bufferedWriter) {
+        try {
+            if (bufferedReader != null) {
+                bufferedReader.close();
+            }
+            if (bufferedWriter != null) {
+                bufferedWriter.close();
+            }
+            if (socket != null) {
+                socket.close();
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
         }
 
-        // CERRAR STREAMS Y SOCKETS
-        flujoEntrada.close();
-        flujoSalida.close();
-        Cliente.close();
+
     }
-    @Override
-    public void start(Stage stage) throws IOException {
-        FXMLLoader fxmlLoader = new FXMLLoader(Cliente.class.getResource("hello-view.fxml"));
-        Scene scene = new Scene(fxmlLoader.load(), 320, 240);
-        stage.setTitle("Hello!");
-        stage.setScene(scene);
-        stage.show();
+
+    public static void main(String[] args) throws Exception {
+
     }
+
 }

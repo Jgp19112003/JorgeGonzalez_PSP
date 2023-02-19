@@ -88,7 +88,7 @@ public class Cliente {
 		
 			String nombre = scanner.nextLine();
 			System.out.println("Te has conectado al chat!");
-			Socket socket = new Socket("192.168.2.30",3000);
+			Socket socket = new Socket("192.168.1.149",3000);
 			Cliente cliente = new Cliente(socket, nombre);
 			cliente.recibirMensaje();
 			cliente.enviarMensaje();

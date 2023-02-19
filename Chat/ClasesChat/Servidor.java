@@ -26,7 +26,6 @@ public class Servidor{
 		    System.out.println(manejoCliente.nombreCliente + " se ha conectado al servidor!");
 			Thread thread = new Thread(manejoCliente);
 			thread.start();
-
 		}
         } catch (IOException e) {
 

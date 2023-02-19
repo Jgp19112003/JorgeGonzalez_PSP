@@ -3,121 +3,147 @@ package com.example.login_javafx;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.CheckBox;
-import javafx.scene.control.Label;
 import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
 
 import javax.crypto.BadPaddingException;
 import javax.crypto.IllegalBlockSizeException;
 import javax.crypto.NoSuchPaddingException;
-import java.io.BufferedWriter;
-import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
+import java.io.*;
 import java.security.InvalidAlgorithmParameterException;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 import java.util.HashMap;
 import java.util.Scanner;
 
-import javafx.event.ActionEvent;
-import javafx.fxml.FXML;
-import javafx.scene.control.CheckBox;
-import javafx.scene.control.PasswordField;
-import javafx.scene.control.TextField;
-
-import javax.crypto.BadPaddingException;
-import javax.crypto.IllegalBlockSizeException;
-import javax.crypto.NoSuchPaddingException;
+import javax.net.ssl.SSLSocket;
+import javax.net.ssl.SSLSocketFactory;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.security.InvalidAlgorithmParameterException;
-import java.security.InvalidKeyException;
-import java.security.NoSuchAlgorithmException;
-import java.util.HashMap;
-import java.util.Scanner;
 
 
 public class HelloController {
 
     @FXML
-    public TextField usernameTextField;
+    public TextField nombre_usuario;
     @FXML
-    public TextField passwordTextField;
+    public TextField password;
     @FXML
-    public TextField errorField;
+    public TextField texto_error;
     @FXML
-    private PasswordField hiddenPasswordTextField;
+    private PasswordField password_oculta;
     @FXML
-    private CheckBox showPassword;
+    private CheckBox password_mostrar;
 
     File file = new File("data.txt");
 
     HashMap<String, String> loginInfo = new HashMap<>();
 
-    Encryptor encryptor = new Encryptor();
+    Encriptador encriptador = new Encriptador();
 
     byte[] encryptionKey = {65, 12, 12, 12, 12, 12, 12, 12, 12,
-            12, 12, 12, 12, 12, 12, 12 };
+            12, 12, 12, 12, 12, 12, 12};
 
     @FXML
-    void changeVisibility(ActionEvent event) {
-        if (showPassword.isSelected()) {
-            passwordTextField.setText(hiddenPasswordTextField.getText());
-            passwordTextField.setVisible(true);
-            hiddenPasswordTextField.setVisible(false);
+    void mostrarPassword(ActionEvent event) {
+        if (password_mostrar.isSelected()) {
+            password.setText(password_oculta.getText());
+            password.setVisible(true);
+            password_oculta.setVisible(false);
             return;
         }
-        hiddenPasswordTextField.setText(passwordTextField.getText());
-        hiddenPasswordTextField.setVisible(true);
-        passwordTextField.setVisible(false);
+        password_oculta.setText(password.getText());
+        password_oculta.setVisible(true);
+        password.setVisible(false);
     }
 
     @FXML
-    void loginHandler(ActionEvent event) throws IOException, NoSuchPaddingException, InvalidKeyException, NoSuchAlgorithmException, IllegalBlockSizeException, BadPaddingException, InvalidAlgorithmParameterException {
-        String username = usernameTextField.getText();
+    void manejoInicioSesion(ActionEvent event) throws IOException, NoSuchPaddingException, InvalidKeyException, NoSuchAlgorithmException, IllegalBlockSizeException, BadPaddingException, InvalidAlgorithmParameterException {
+        String username = nombre_usuario.getText();
         String password = getPassword();
-        updateUsernamesAndPasswords();
+        actualizarUsuariosyPasswords();
 
         String encryptedPassword = loginInfo.get(username);
-        if(password.equals(encryptor.decrypt(encryptedPassword,encryptionKey))){
-            System.out.println("successfully login!");
-        } else {
-            errorField.setVisible(true);
+        try {
+            if (password.equals(encriptador.desencriptar(encryptedPassword, encryptionKey))) {
+                System.out.println("Inicio de sesion exitoso!");
+
+                /*CONEXION USUARIO*/
+
+                String Host = "localhost";
+                int puerto = 5556;//puerto remoto
+
+                System.setProperty("javax.net.ssl.trustStore", "C:\\Users\\jgp19\\Desktop\\GitHub\\JorgeGonzalez_PSP\\Chat_JavaFX\\src\\main\\java\\com\\example\\login_javafx\\AlmacenSrv");
+                System.setProperty("javax.net.ssl.trustStorePassword", "1234567");
+
+                System.out.println("Cliente conectandose al chat....");
+
+                SSLSocketFactory sfact = (SSLSocketFactory) SSLSocketFactory.getDefault();
+                SSLSocket Cliente = (SSLSocket) sfact.createSocket(Host, puerto);
+
+                // CREO FLUJO DE SALIDA AL SERVIDOR
+                DataOutputStream flujoSalida = new DataOutputStream(Cliente.getOutputStream());
+
+                // CREO FLUJO DE ENTRADA AL SERVIDOR
+                DataInputStream flujoEntrada = new DataInputStream(Cliente.getInputStream());
+
+                // EL servidor ME ENVIA UN MENSAJE
+                if (flujoEntrada.readUTF().equalsIgnoreCase("IniciarChat")) {
+
+                } else {
+                    System.out.println("El servidor a rechazado la orden de iniciar el chat");
+                }
+
+                System.out.println("Te has conectado al chat!");
+                Cliente cliente = new Cliente(Cliente, username);
+                cliente.recibirMensaje();
+                cliente.enviarMensaje();
+
+                // CERRAR STREAMS Y SOCKETS
+                flujoEntrada.close();
+                flujoSalida.close();
+                Cliente.close();
+                /**/
+            } else {
+                texto_error.setVisible(true);
+            }
+        } catch (RuntimeException e){
+            System.out.println("Ese usuario no esta registrado!!");
         }
     }
 
     @FXML
-    void createAccount(ActionEvent event) throws IOException, NoSuchPaddingException, InvalidAlgorithmParameterException, NoSuchAlgorithmException, IllegalBlockSizeException, BadPaddingException, InvalidKeyException {
-        writeToFile();
+    void crearCuenta(ActionEvent event) throws IOException, NoSuchPaddingException, InvalidAlgorithmParameterException, NoSuchAlgorithmException, IllegalBlockSizeException, BadPaddingException, InvalidKeyException {
+        escribirDatos();
     }
 
-    private String getPassword(){
-        if(passwordTextField.isVisible()){
-            return passwordTextField.getText();
+    private String getPassword() {
+        if (password.isVisible()) {
+            return password.getText();
         } else {
-            return hiddenPasswordTextField.getText();
+            return password_oculta.getText();
         }
     }
 
-    private void updateUsernamesAndPasswords() throws IOException {
+    private void actualizarUsuariosyPasswords() throws IOException {
         Scanner scanner = new Scanner(file);
         loginInfo.clear();
         loginInfo = new HashMap<>();
-        while (scanner.hasNext()){
+        while (scanner.hasNext()) {
             String[] splitInfo = scanner.nextLine().split(",");
-            loginInfo.put(splitInfo[0],splitInfo[1]);
+            loginInfo.put(splitInfo[0], splitInfo[1]);
         }
     }
 
-    private void writeToFile() throws IOException, NoSuchPaddingException, InvalidKeyException, NoSuchAlgorithmException, IllegalBlockSizeException, BadPaddingException, InvalidAlgorithmParameterException {
-        String username = usernameTextField.getText();
+    private void escribirDatos() throws IOException, NoSuchPaddingException, InvalidKeyException, NoSuchAlgorithmException, IllegalBlockSizeException, BadPaddingException, InvalidAlgorithmParameterException {
+        String nombre_usuarioText = nombre_usuario.getText();
         String password = getPassword();
-        BufferedWriter writer = new BufferedWriter(new FileWriter(file,true));
+        BufferedWriter writer = new BufferedWriter(new FileWriter(file, true));
 
-        writer.write(username + "," + encryptor.encrypt(password,encryptionKey) + "\n");
+        writer.write(nombre_usuarioText + "," + encriptador.encriptar(password, encryptionKey) + "\n");
         writer.close();
+        System.out.println("Se ha creado la cuenta correctamente!");
     }
 }

@@ -1,4 +1,4 @@
-package ClasesChat;
+package com.example.login_javafx;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
@@ -26,7 +26,7 @@ public class ManejoCliente implements Runnable {
             clientes.add(this);
             enviarMensaje(nombreCliente + " se ha conectado al chat!");
         } catch (IOException e) {
-            cerrarTodo(socket,bufferedReader,bufferedWriter);
+            cerrarTodo(socket, bufferedReader, bufferedWriter);
         }
     }
 
@@ -55,7 +55,7 @@ public class ManejoCliente implements Runnable {
 
                 }
             } catch (IOException e) {
-                cerrarTodo(socket,bufferedReader,bufferedWriter);
+                cerrarTodo(socket, bufferedReader, bufferedWriter);
             }
         }
     }
@@ -87,3 +87,4 @@ public class ManejoCliente implements Runnable {
 
 }
 //JP
+

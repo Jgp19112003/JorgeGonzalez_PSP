@@ -12,18 +12,18 @@ import java.security.InvalidAlgorithmParameterException;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 
-public class Encryptor {
+public class Encriptador {
 
     //Advanced Encryption Standard
     //128 bit
-    byte[] decodedKey  = Base64.getDecoder().decode("MTIzNDU2Nzg5MTIzNDU2Nw==");
+    byte[] decodedKey = Base64.getDecoder().decode("MTIzNDU2Nzg5MTIzNDU2Nw==");
 
-    public String encrypt(String input, byte[] secretKey) throws NoSuchPaddingException, NoSuchAlgorithmException,
+    public String encriptar(String input, byte[] secretKey) throws NoSuchPaddingException, NoSuchAlgorithmException,
             InvalidAlgorithmParameterException, InvalidKeyException,
             BadPaddingException, IllegalBlockSizeException {
 
         Cipher cipher = Cipher.getInstance("AES/CBC/PKCS5Padding");
-        SecretKeySpec key = new SecretKeySpec(secretKey,"AES");
+        SecretKeySpec key = new SecretKeySpec(secretKey, "AES");
         cipher.init(Cipher.ENCRYPT_MODE, key, new IvParameterSpec(decodedKey));
         byte[] cipherText = cipher.doFinal(input.getBytes());
         return Base64.getEncoder()
@@ -31,19 +31,19 @@ public class Encryptor {
     }
 
 
-    public String decrypt(String cipherText, byte[] secretKey) throws NoSuchPaddingException, NoSuchAlgorithmException,
+    public String desencriptar(String cipherText, byte[] secretKey) throws NoSuchPaddingException, NoSuchAlgorithmException,
             InvalidAlgorithmParameterException, InvalidKeyException,
             BadPaddingException, IllegalBlockSizeException {
 
         Cipher cipher = Cipher.getInstance("AES/CBC/PKCS5Padding");
-        SecretKeySpec key = new SecretKeySpec(secretKey,"AES");
+        SecretKeySpec key = new SecretKeySpec(secretKey, "AES");
         cipher.init(Cipher.DECRYPT_MODE, key, new IvParameterSpec(decodedKey));
         byte[] plainText = cipher.doFinal(Base64.getDecoder()
                 .decode(cipherText));
         return new String(plainText);
     }
 
-    public byte[] stringToByteArray(String keyString){
+    public byte[] stringToByteArray(String keyString) {
         String[] keyFragments = keyString.split(" ");
 
         byte[] key = new byte[16];
@@ -54,18 +54,20 @@ public class Encryptor {
     }
 
     public static void main(String[] args) throws NoSuchPaddingException, InvalidKeyException, NoSuchAlgorithmException, IllegalBlockSizeException, BadPaddingException, InvalidAlgorithmParameterException {
-        Encryptor encryptor = new Encryptor();
+        Encriptador encriptador = new Encriptador();
 
-        String stringKey = "admin";
+        byte[] encryptionKey = {65, 12, 12, 12, 12, 12, 12, 12, 12,
+                12, 12, 12, 12, 12, 12, 12 };
+
+        String stringKey = "65 12 12 12 12 12 12 12 12 12 12 12 12 12 12 12";
 
 
-        byte[] key = encryptor.stringToByteArray(stringKey);
+        byte[] key = encriptador.stringToByteArray(stringKey);
 
         String input = "Secret";
 
-        System.out.println(encryptor.encrypt(input,key));
+        System.out.println(encriptador.encriptar(input, key));
         //output: VyEcl0pLeqQLemGONcik0w==
-
-        System.out.println(encryptor.decrypt("VyEcl0pLeqQLemGONcik0w==",key));
+        System.out.println(encriptador.desencriptar("VyEcl0pLeqQLemGONcik0w==", key));
     }
 }
