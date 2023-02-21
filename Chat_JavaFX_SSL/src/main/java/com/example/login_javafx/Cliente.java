@@ -17,6 +17,7 @@ public class Cliente {
     BufferedWriter bufferedWriter;
     String nombre;
 
+    /*Constructor CLIENTE*/
     public Cliente(SSLSocket socket, String nombre) {
         try {
             this.socket = socket;
@@ -28,6 +29,7 @@ public class Cliente {
         }
     }
 
+    /*Metodo que permite a los clientes enviar mensajes*/
     public void enviarMensaje() {
         try {
             bufferedWriter.write(nombre);
@@ -48,6 +50,7 @@ public class Cliente {
         }
     }
 
+    /*Metodo que permite a los clientes recibir mensajes*/
     public void recibirMensaje() {
         new Thread(new Runnable() {
 
@@ -66,6 +69,7 @@ public class Cliente {
         }).start();
     }
 
+    /*Metodo para cerrar conexiones*/
     public void cerrarTodo(SSLSocket socket, BufferedReader bufferedReader, BufferedWriter bufferedWriter) {
         try {
             if (bufferedReader != null) {

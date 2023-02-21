@@ -18,6 +18,7 @@ public class Encriptador {
     //128 bit
     byte[] decodedKey = Base64.getDecoder().decode("MTIzNDU2Nzg5MTIzNDU2Nw==");
 
+    /*Metodo para cifrar clave secreta*/
     public String encriptar(String input, byte[] secretKey) throws NoSuchPaddingException, NoSuchAlgorithmException,
             InvalidAlgorithmParameterException, InvalidKeyException,
             BadPaddingException, IllegalBlockSizeException {
@@ -30,7 +31,7 @@ public class Encriptador {
                 .encodeToString(cipherText);
     }
 
-
+    /*Metodo para descifrar clave secreta*/
     public String desencriptar(String cipherText, byte[] secretKey) throws NoSuchPaddingException, NoSuchAlgorithmException,
             InvalidAlgorithmParameterException, InvalidKeyException,
             BadPaddingException, IllegalBlockSizeException {
@@ -43,6 +44,7 @@ public class Encriptador {
         return new String(plainText);
     }
 
+    /*Metodo para pasar la clave secreta a bytes*/
     public byte[] stringToByteArray(String keyString) {
         String[] keyFragments = keyString.split(" ");
 

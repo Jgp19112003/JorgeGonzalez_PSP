@@ -16,7 +16,7 @@ public class ManejoCliente implements Runnable {
     BufferedWriter bufferedWriter;
     String nombreCliente;
 
-
+    /*Metodo que permite conectarse al servidor desde el cliente*/
     public ManejoCliente(Socket socket) {
         try {
             this.socket = socket;

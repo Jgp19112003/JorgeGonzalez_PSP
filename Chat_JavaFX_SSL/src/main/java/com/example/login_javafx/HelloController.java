@@ -46,6 +46,7 @@ public class HelloController {
     byte[] encryptionKey = {65, 12, 12, 12, 12, 12, 12, 12, 12,
             12, 12, 12, 12, 12, 12, 12};
 
+    /*Metodo que permite al usuario mostrar contraseña*/
     @FXML
     void mostrarPassword(ActionEvent event) {
         if (password_mostrar.isSelected()) {
@@ -59,6 +60,7 @@ public class HelloController {
         password.setVisible(false);
     }
 
+    /*Metodo que permite al usuario iniciar sesion*/
     @FXML
     void manejoInicioSesion(ActionEvent event) throws IOException, NoSuchPaddingException, InvalidKeyException, NoSuchAlgorithmException, IllegalBlockSizeException, BadPaddingException, InvalidAlgorithmParameterException {
         String username = nombre_usuario.getText();
@@ -75,7 +77,7 @@ public class HelloController {
                 String Host = "localhost";
                 int puerto = 5556;//puerto remoto
 
-                System.setProperty("javax.net.ssl.trustStore", "C:\\Users\\jgp19\\Desktop\\GitHub\\JorgeGonzalez_PSP\\Chat_JavaFX\\src\\main\\java\\com\\example\\login_javafx\\AlmacenSrv");
+                System.setProperty("javax.net.ssl.trustStore", "src/main/java/com/example/login_javafx/AlmacenSrv");
                 System.setProperty("javax.net.ssl.trustStorePassword", "1234567");
 
                 System.out.println("Cliente conectandose al chat....");
@@ -83,13 +85,10 @@ public class HelloController {
                 SSLSocketFactory sfact = (SSLSocketFactory) SSLSocketFactory.getDefault();
                 SSLSocket Cliente = (SSLSocket) sfact.createSocket(Host, puerto);
 
-                // CREO FLUJO DE SALIDA AL SERVIDOR
                 DataOutputStream flujoSalida = new DataOutputStream(Cliente.getOutputStream());
 
-                // CREO FLUJO DE ENTRADA AL SERVIDOR
                 DataInputStream flujoEntrada = new DataInputStream(Cliente.getInputStream());
 
-                // EL servidor ME ENVIA UN MENSAJE
                 if (flujoEntrada.readUTF().equalsIgnoreCase("IniciarChat")) {
 
                 } else {
@@ -101,7 +100,6 @@ public class HelloController {
                 cliente.recibirMensaje();
                 cliente.enviarMensaje();
 
-                // CERRAR STREAMS Y SOCKETS
                 flujoEntrada.close();
                 flujoSalida.close();
                 Cliente.close();
@@ -109,11 +107,12 @@ public class HelloController {
             } else {
                 texto_error.setVisible(true);
             }
-        } catch (RuntimeException e){
+        } catch (RuntimeException e) {
             System.out.println("Ese usuario no esta registrado!!");
         }
     }
 
+    /*Metodo que permite al usuario crear cuenta*/
     @FXML
     void crearCuenta(ActionEvent event) throws IOException, NoSuchPaddingException, InvalidAlgorithmParameterException, NoSuchAlgorithmException, IllegalBlockSizeException, BadPaddingException, InvalidKeyException {
         escribirDatos();
@@ -127,6 +126,7 @@ public class HelloController {
         }
     }
 
+    /*Metodo que actualiza los usuarios y contraseñas en el fichero*/
     private void actualizarUsuariosyPasswords() throws IOException {
         Scanner scanner = new Scanner(file);
         loginInfo.clear();
@@ -137,6 +137,7 @@ public class HelloController {
         }
     }
 
+    /*Metodo que escribe los datos en el fichero*/
     private void escribirDatos() throws IOException, NoSuchPaddingException, InvalidKeyException, NoSuchAlgorithmException, IllegalBlockSizeException, BadPaddingException, InvalidAlgorithmParameterException {
         String nombre_usuarioText = nombre_usuario.getText();
         String password = getPassword();

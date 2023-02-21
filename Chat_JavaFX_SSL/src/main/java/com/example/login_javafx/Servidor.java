@@ -26,6 +26,7 @@ public class Servidor {
 
                 ManejoCliente manejoCliente = new ManejoCliente(clienteConectado);
                 System.out.println(manejoCliente.nombreCliente + " se ha conectado al servidor!");
+                /*Hilo*/
                 Thread thread = new Thread(manejoCliente);
                 thread.start();
             }
@@ -47,7 +48,7 @@ public class Servidor {
 
     public static void main(String[] arg) throws IOException {
 
-        System.setProperty("javax.net.ssl.keyStore", "C:\\Users\\jgp19\\Desktop\\GitHub\\JorgeGonzalez_PSP\\Chat_JavaFX\\src\\main\\java\\com\\example\\login_javafx\\AlmacenSrv");
+        System.setProperty("javax.net.ssl.keyStore", "src/main/java/com/example/login_javafx/AlmacenSrv");
         System.setProperty("javax.net.ssl.keyStorePassword", "1234567");
 
         //FLUJO DE SALIDA AL CLIENTE
